@@ -1,29 +1,34 @@
 import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
-import { StyleSheet, Text, TextInput, View, Button, Alert, Switch, TouchableOpacity, ScrollView, Image, FlatList, Modal } from 'react-native';
+import { StyleSheet, Text, TextInput, View, Button, Alert, Switch, TouchableOpacity, ScrollView, Image, FlatList, Modal, ActivityIndicator, Pressable, SectionList } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 
 export default function App() {
   const [resultado, setResultado] = useState('');
   const [isEnabled, setIsEnabled] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [textInputValue, setTextInputValue] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [selectedValue, setSelectedValue] = useState('javascript');
 
-  // Función para manejar la acción del botón
   const manejarPresion = () => {
     setResultado('¡Botón presionado!');
     Alert.alert('¡Botón presionado!');
   };
 
-  // Función para manejar el Switch
   const toggleSwitch = () => setIsEnabled(previousState => !previousState);
-
-  // Función para abrir y cerrar el Modal
   const toggleModal = () => setModalVisible(!modalVisible);
+  const mostrarAlerta = () => Alert.alert("Alerta", "Este es un mensaje de alerta con más opciones", [{ text: "OK" }]);
 
-  // Datos para el FlatList
   const DATA = [
-    { id: '1', title: 'Primer Item' },
-    { id: '2', title: 'Segundo Item' },
-    { id: '3', title: 'Tercer Item' },
+    { id: '1', title: 'Kenia Os' },
+    { id: '2', title: 'The Neighbourhood' },
+    { id: '3', title: 'Rauw Alejandro' },
+  ];
+
+  const SECTIONS = [
+    { title: 'Frutas', data: ['Manzana', 'Banano'] },
+    { title: 'Verduras', data: ['Zanahoria', 'Brócoli'] },
   ];
 
   const Item = ({ title }) => (
@@ -33,68 +38,60 @@ export default function App() {
   );
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <Text style={styles.titulo}>Componentes de React Native</Text>
       <StatusBar style="auto" />
 
-      {/* Componente Button */}
-      <Text style={styles.comp}>
-        Botón: El componente Button de React Native es un componente básico que permite crear botones de manera sencilla.
-        Se asegura de que el botón se vea bien en cualquier plataforma (iOS, Android, etc.) y soporta un nivel mínimo de personalización.
-      </Text>
+      {/* Button */}
+      <Text style={styles.comp}>Button: Botón básico multiplataforma con acción al presionar.</Text>
       <Button title="Presiona aquí" onPress={manejarPresion} />
 
-      {/* Componente Switch */}
-      <Text style={styles.comp}>
-        Switch: El componente Switch permite mostrar un interruptor para cambiar entre dos estados (activado/desactivado).
-      </Text>
-      <Switch
-        onValueChange={toggleSwitch}
-        value={isEnabled}
-      />
+      {/* Switch */}
+      <Text style={styles.comp}>Switch: Permite alternar entre dos estados (ON/OFF).</Text>
+      <Switch onValueChange={toggleSwitch} value={isEnabled} />
       <Text style={styles.comp}>El Switch está {isEnabled ? "Activado" : "Desactivado"}</Text>
 
-      {/* Componente TouchableOpacity */}
-      <Text style={styles.comp}>
-        TouchableOpacity: El componente TouchableOpacity permite crear un área táctil que responde a las interacciones con un efecto de opacidad.
-      </Text>
+      {/* TouchableOpacity */}
+      <Text style={styles.comp}>TouchableOpacity: Área táctil con efecto de opacidad al presionar.</Text>
       <TouchableOpacity style={styles.botonPersonalizado} onPress={manejarPresion}>
         <Text style={styles.textoBoton}>Presiona el TouchableOpacity</Text>
       </TouchableOpacity>
 
-      {/* Componente ScrollView */}
-      <Text style={styles.comp}>
-        ScrollView: El componente ScrollView es útil para crear una vista desplazable que puede contener varios elementos de manera vertical u horizontal.
-      </Text>
+      {/* TextInput */}
+      <Text style={styles.comp}>TextInput: Campo de entrada para escribir texto.</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Escribe algo aquí"
+        value={textInputValue}
+        onChangeText={setTextInputValue}
+      />
+      <Text style={styles.comp}>Valor escrito: {textInputValue}</Text>
+
+      {/* ScrollView */}
+      <Text style={styles.comp}>ScrollView: Vista desplazable vertical u horizontal.</Text>
       <ScrollView style={styles.scrollView}>
         <Text style={styles.texto}>Este es un contenido desplazable.</Text>
         <Text style={styles.texto}>Puedes agregar más contenido aquí para ver cómo se desplaza.</Text>
         <Text style={styles.texto}>Y mucho más contenido...</Text>
       </ScrollView>
 
-      {/* Componente Image */}
-      <Text style={styles.comp}>
-        Image: El componente Image es utilizado para mostrar imágenes en tu aplicación, ya sea de una URL o de recursos locales.
-      </Text>
-      <Image 
+      {/* Image */}
+      <Text style={styles.comp}>Image: Muestra imágenes de red o locales.</Text>
+      <Image
         style={styles.image}
         source={{ uri: 'https://reactnative.dev/img/tiny_logo.png' }}
       />
 
-      {/* Componente FlatList */}
-      <Text style={styles.comp}>
-        FlatList: El componente FlatList es altamente eficiente para mostrar listas largas de datos, ya que solo renderiza los elementos visibles en la pantalla.
-      </Text>
+      {/* FlatList */}
+      <Text style={styles.comp}>FlatList: Lista optimizada para grandes volúmenes de datos.</Text>
       <FlatList
         data={DATA}
         renderItem={({ item }) => <Item title={item.title} />}
         keyExtractor={item => item.id}
       />
 
-      {/* Componente Modal */}
-      <Text style={styles.comp}>
-        Modal: El componente Modal muestra un cuadro de diálogo superpuesto que se puede usar para mostrar información importante o formularios.
-      </Text>
+      {/* Modal */}
+      <Text style={styles.comp}>Modal: Ventana emergente sobre la pantalla actual.</Text>
       <Button title="Abrir Modal" onPress={toggleModal} />
       {modalVisible && (
         <View style={styles.modal}>
@@ -103,9 +100,54 @@ export default function App() {
         </View>
       )}
 
-      {/* Mostrar resultado */}
+      {/* ActivityIndicator */}
+      <Text style={styles.comp}>ActivityIndicator: Indicador de carga animado.</Text>
+      <Button title="Mostrar Cargando" onPress={() => setLoading(true)} />
+      {loading && <ActivityIndicator size="large" color="purple" />}
+
+      {/* Pressable */}
+      <Text style={styles.comp}>Pressable: Similar a Touchable, con más control del estado de presión.</Text>
+      <Pressable
+        style={({ pressed }) => [
+          {
+            backgroundColor: pressed ? 'lightgray' : 'purple',
+            padding: 10,
+            borderRadius: 8,
+            marginTop: 10,
+          }
+        ]}
+        onPress={mostrarAlerta}
+      >
+        <Text style={{ color: 'white', textAlign: 'center' }}>Presiona el Pressable</Text>
+      </Pressable>
+
+      {/* SectionList */}
+      <Text style={styles.comp}>SectionList: Lista con secciones agrupadas.</Text>
+      <SectionList
+        sections={SECTIONS}
+        keyExtractor={(item, index) => item + index}
+        renderItem={({ item }) => <Text style={styles.texto}>{item}</Text>}
+        renderSectionHeader={({ section: { title } }) => (
+          <Text style={{ fontWeight: 'bold', marginTop: 10 }}>{title}</Text>
+        )}
+      />
+
+      {/* Picker */}
+      <Text style={styles.comp}>Picker: Menú desplegable para seleccionar una opción.</Text>
+      <Picker
+        selectedValue={selectedValue}
+        onValueChange={(itemValue) => setSelectedValue(itemValue)}
+        style={{ height: 50, marginBottom: 20 }}
+      >
+        <Picker.Item label="JavaScript" value="javascript" />
+        <Picker.Item label="Python" value="python" />
+        <Picker.Item label="Java" value="java" />
+      </Picker>
+      <Text style={styles.comp}>Lenguaje seleccionado: {selectedValue}</Text>
+
+      {/* Resultado final */}
       <Text style={styles.comp}>Resultado: {resultado}</Text>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -115,7 +157,6 @@ const styles = StyleSheet.create({
     marginTop: 50,
     padding: 20,
   },
-
   titulo: {
     fontSize: 20,
     color: 'purple',
@@ -123,7 +164,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 20,
   },
-
   comp: {
     fontSize: 18,
     color: 'black',
@@ -131,7 +171,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 20,
   },
-
   texto: {
     fontSize: 18,
     color: 'blue',
@@ -139,8 +178,6 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     marginTop: 10,
   },
-
-  // Estilos adicionales
   botonPersonalizado: {
     backgroundColor: 'purple',
     paddingHorizontal: 30,
@@ -149,37 +186,31 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginTop: 20,
   },
-
   textoBoton: {
     color: 'white',
     fontWeight: 'bold',
     fontSize: 18,
     textAlign: 'center',
   },
-
   scrollView: {
     backgroundColor: 'lightgray',
     marginBottom: 20,
   },
-
   image: {
     width: 100,
     height: 100,
     alignSelf: 'center',
     marginBottom: 20,
   },
-
   item: {
     backgroundColor: '#f9c2ff',
     padding: 20,
     marginVertical: 8,
     marginHorizontal: 16,
   },
-
   title: {
     fontSize: 32,
   },
-
   modal: {
     position: 'absolute',
     top: '40%',
@@ -190,10 +221,17 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     elevation: 5,
   },
-
   modalText: {
     fontSize: 20,
     textAlign: 'center',
     marginBottom: 20,
   },
+  input: {
+    borderWidth: 1,
+    borderColor: '#999',
+    padding: 10,
+    marginBottom: 20,
+    borderRadius: 5,
+  },
 });
+
